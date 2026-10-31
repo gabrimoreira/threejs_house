@@ -1,11 +1,17 @@
 :root {
   --bg: #cfe0ea;
-  --panel: rgba(255, 255, 255, 0.92);
+  --panel: rgba(255, 255, 255, 0.94);
+  --panel-solid: #ffffff;
+  --line: #dde3e7;
   --text: #23303a;
   --muted: #5d6b75;
   --accent: #2f7d5b;
+  --accent-soft: #e3f1ea;
+  --danger: #c4413a;
+  --thumb-bg: #e9eef1;
   --radius: 10px;
   --shadow: 0 4px 18px rgba(20, 35, 45, 0.18);
+  --side: 300px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--text);
 }
@@ -20,6 +26,12 @@ body {
   height: 100%;
   overflow: hidden;
   background: var(--bg);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
 #app {
@@ -51,9 +63,8 @@ body {
 .hud {
   position: absolute;
   top: max(12px, env(safe-area-inset-top));
-  left: 16px;
-  right: 16px;
-  max-width: 520px;
+  left: 12px;
+  width: var(--side);
   padding: 10px 14px;
   background: var(--panel);
   border-radius: var(--radius);
@@ -67,7 +78,8 @@ body {
 
 .hud .hint {
   margin: 4px 0 0;
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1.35;
   color: var(--muted);
 }
 
@@ -83,6 +95,254 @@ body {
   pointer-events: none;
 }
 
-.loading[hidden] {
+.loading[hidden],
+.placement-bar[hidden] {
   display: none;
+}
+
+/* ---------- Catálogo ---------- */
+
+.catalog {
+  position: absolute;
+  top: calc(max(12px, env(safe-area-inset-top)) + 84px);
+  bottom: 12px;
+  left: 12px;
+  width: var(--side);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.catalog.collapsed {
+  bottom: auto;
+}
+
+.catalog.collapsed .catalog-tabs,
+.catalog.collapsed .catalog-list {
+  display: none;
+}
+
+.catalog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 8px 14px;
+}
+
+.icon-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.icon-button:hover {
+  background: var(--line);
+}
+
+.catalog-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 10px 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  flex-shrink: 0;
+}
+
+.tab {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-solid);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.tab.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.catalog-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 10px 12px;
+  border-top: 1px solid var(--line);
+}
+
+.catalog-item h3 {
+  margin: 12px 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.variants {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 6px;
+}
+
+.variant {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-solid);
+  min-width: 0;
+}
+
+.variant:hover {
+  border-color: var(--accent);
+}
+
+.variant img {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  background: var(--thumb-bg);
+}
+
+.variant-name {
+  max-width: 100%;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.variant .badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: rgba(35, 48, 58, 0.7);
+  color: #fff;
+  font-size: 9px;
+  line-height: 14px;
+}
+
+.variant.broken img {
+  outline: 2px dashed var(--danger);
+}
+
+/* ---------- Barra de posicionamento ---------- */
+
+.placement-bar {
+  position: absolute;
+  left: calc(var(--side) + 24px);
+  right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  margin: 0 auto;
+  max-width: 640px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--accent);
+}
+
+.placement-bar.invalid {
+  border-left-color: var(--danger);
+}
+
+.placement-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.placement-label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.placement-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.placement-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.placement-actions button {
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-solid);
+}
+
+.placement-actions button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.placement-actions button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ---------- Celular: catálogo vira uma gaveta embaixo ---------- */
+
+@media (max-width: 700px) {
+  .hud {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    padding: 8px 12px;
+  }
+
+  .hud .hint {
+    display: none;
+  }
+
+  .catalog {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: 46vh;
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .catalog.collapsed {
+    bottom: 0;
+    height: auto;
+  }
+
+  .placement-bar {
+    left: 12px;
+    right: 12px;
+    bottom: calc(56px + env(safe-area-inset-bottom));
+    flex-wrap: wrap;
+  }
+
+  .placement-actions {
+    width: 100%;
+  }
+
+  .placement-actions button {
+    flex: 1;
+  }
 }

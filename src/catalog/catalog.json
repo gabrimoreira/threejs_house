@@ -1,0 +1,431 @@
+{
+  "version": 1,
+  "escalaPadrao": 2.0,
+  "categorias": [
+    { "id": "sala", "nome": "Sala" },
+    { "id": "quarto", "nome": "Quarto" },
+    { "id": "cozinha", "nome": "Cozinha" },
+    { "id": "banheiro", "nome": "Banheiro" },
+    { "id": "mesas", "nome": "Mesas e cadeiras" },
+    { "id": "eletronicos", "nome": "Eletrônicos" },
+    { "id": "iluminacao", "nome": "Iluminação" },
+    { "id": "decoracao", "nome": "Decoração" }
+  ],
+  "itens": [
+    {
+      "id": "sofa", "nome": "Sofá", "categoria": "sala", "montagem": "piso",
+      "arquivo": "models/sala/loungeSofa.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "classico", "nome": "Clássico" },
+        { "id": "classicoVerde", "nome": "Clássico verde", "gerada": true, "materiais": { "carpet": "#6b8a5e" } },
+        { "id": "classicoVinho", "nome": "Clássico vinho", "gerada": true, "materiais": { "carpet": "#8c4b45" } },
+        { "id": "chaise", "nome": "Com chaise", "arquivo": "models/sala/loungeSofaLong.glb" },
+        { "id": "canto", "nome": "De canto", "arquivo": "models/sala/loungeSofaCorner.glb" },
+        { "id": "moderno", "nome": "Moderno", "arquivo": "models/sala/loungeDesignSofa.glb" },
+        { "id": "modernoCinza", "nome": "Moderno cinza", "arquivo": "models/sala/loungeDesignSofa.glb", "gerada": true, "materiais": { "carpetBlue": "#7d8288" } },
+        { "id": "modernoCanto", "nome": "Moderno de canto", "arquivo": "models/sala/loungeDesignSofaCorner.glb" }
+      ]
+    },
+    {
+      "id": "poltrona", "nome": "Poltrona", "categoria": "sala", "montagem": "piso",
+      "arquivo": "models/sala/loungeChair.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "classica", "nome": "Clássica" },
+        { "id": "reclinavel", "nome": "Reclinável", "arquivo": "models/sala/loungeChairRelax.glb" },
+        { "id": "moderna", "nome": "Moderna", "arquivo": "models/sala/loungeDesignChair.glb" },
+        { "id": "puff", "nome": "Puff", "arquivo": "models/sala/loungeSofaOttoman.glb" }
+      ]
+    },
+    {
+      "id": "mesaCentro", "nome": "Mesa de centro", "categoria": "sala", "montagem": "piso", "superficie": {},
+      "arquivo": "models/sala/tableCoffee.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "madeira", "nome": "Madeira" },
+        { "id": "madeiraQuadrada", "nome": "Madeira quadrada", "arquivo": "models/sala/tableCoffeeSquare.glb" },
+        { "id": "vidro", "nome": "Vidro", "arquivo": "models/sala/tableCoffeeGlass.glb" },
+        { "id": "vidroQuadrada", "nome": "Vidro quadrada", "arquivo": "models/sala/tableCoffeeGlassSquare.glb" }
+      ]
+    },
+    {
+      "id": "rackTv", "nome": "Rack de TV", "categoria": "sala", "montagem": "piso", "superficie": {},
+      "arquivo": "models/sala/cabinetTelevision.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "aberto", "nome": "Aberto" },
+        { "id": "portas", "nome": "Com portas", "arquivo": "models/sala/cabinetTelevisionDoors.glb" }
+      ]
+    },
+    {
+      "id": "estante", "nome": "Estante", "categoria": "sala", "montagem": "piso",
+      "arquivo": "models/sala/bookcaseOpen.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "aberta", "nome": "Aberta" },
+        { "id": "baixa", "nome": "Baixa", "arquivo": "models/sala/bookcaseOpenLow.glb" },
+        { "id": "fechada", "nome": "Fechada", "arquivo": "models/sala/bookcaseClosed.glb" },
+        { "id": "portas", "nome": "Com portas", "arquivo": "models/sala/bookcaseClosedDoors.glb" },
+        { "id": "larga", "nome": "Larga", "arquivo": "models/sala/bookcaseClosedWide.glb" }
+      ]
+    },
+    {
+      "id": "tapete", "nome": "Tapete", "categoria": "sala", "montagem": "piso", "colisao": false,
+      "arquivo": "models/sala/rugRectangle.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "retangular", "nome": "Retangular" },
+        { "id": "arredondado", "nome": "Arredondado", "arquivo": "models/sala/rugRounded.glb" },
+        { "id": "redondo", "nome": "Redondo", "arquivo": "models/sala/rugRound.glb" },
+        { "id": "quadrado", "nome": "Quadrado", "arquivo": "models/sala/rugSquare.glb" },
+        { "id": "capacho", "nome": "Capacho", "arquivo": "models/sala/rugDoormat.glb" }
+      ]
+    },
+
+    {
+      "id": "cama", "nome": "Cama", "categoria": "quarto", "montagem": "piso",
+      "arquivo": "models/quarto/bedDouble.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "casal", "nome": "Casal" },
+        { "id": "casalAzul", "nome": "Casal azul", "gerada": true, "materiais": { "carpet": "#6d8fb3" } },
+        { "id": "casalRose", "nome": "Casal rosé", "gerada": true, "materiais": { "carpet": "#c98b8b" } },
+        { "id": "solteiro", "nome": "Solteiro", "arquivo": "models/quarto/bedSingle.glb" },
+        { "id": "beliche", "nome": "Beliche", "arquivo": "models/quarto/bedBunk.glb" }
+      ]
+    },
+    {
+      "id": "criadoMudo", "nome": "Criado-mudo", "categoria": "quarto", "montagem": "piso", "superficie": {},
+      "arquivo": "models/quarto/cabinetBed.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "simples", "nome": "Simples" },
+        { "id": "gaveta", "nome": "Com gaveta", "arquivo": "models/quarto/cabinetBedDrawer.glb" },
+        { "id": "gavetaMesa", "nome": "Gaveta e tampo", "arquivo": "models/quarto/cabinetBedDrawerTable.glb" }
+      ]
+    },
+    {
+      "id": "escrivaninha", "nome": "Escrivaninha", "categoria": "quarto", "montagem": "piso", "superficie": {},
+      "arquivo": "models/quarto/desk.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "reta", "nome": "Reta" },
+        { "id": "canto", "nome": "De canto", "arquivo": "models/quarto/deskCorner.glb" }
+      ]
+    },
+    {
+      "id": "cadeiraEscritorio", "nome": "Cadeira de escritório", "categoria": "quarto", "montagem": "piso",
+      "arquivo": "models/quarto/chairDesk.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "padrao", "nome": "Padrão" },
+        { "id": "vermelha", "nome": "Vermelha", "gerada": true, "materiais": { "carpet": "#a8443d" } }
+      ]
+    },
+
+    {
+      "id": "geladeira", "nome": "Geladeira", "categoria": "cozinha", "montagem": "piso",
+      "arquivo": "models/cozinha/kitchenFridge.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "duplex", "nome": "Duplex" },
+        { "id": "duplexVermelha", "nome": "Duplex retrô vermelha", "gerada": true, "materiais": { "metalLight": "#c4473f" } },
+        { "id": "grande", "nome": "Grande", "arquivo": "models/cozinha/kitchenFridgeLarge.glb" },
+        { "id": "pequena", "nome": "Frigobar", "arquivo": "models/cozinha/kitchenFridgeSmall.glb" },
+        { "id": "embutida", "nome": "Embutida", "arquivo": "models/cozinha/kitchenFridgeBuiltIn.glb" }
+      ]
+    },
+    {
+      "id": "fogao", "nome": "Fogão", "categoria": "cozinha", "montagem": "piso", "superficie": {},
+      "arquivo": "models/cozinha/kitchenStove.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "gas", "nome": "A gás" },
+        { "id": "eletrico", "nome": "Elétrico", "arquivo": "models/cozinha/kitchenStoveElectric.glb" }
+      ]
+    },
+    {
+      "id": "microondas", "nome": "Micro-ondas", "categoria": "cozinha", "montagem": "bancada", "escala": 1.7,
+      "arquivo": "models/cozinha/kitchenMicrowave.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "branco", "nome": "Branco" },
+        { "id": "inox", "nome": "Inox", "gerada": true, "materiais": { "carpetWhite": "#a9b0b6" } },
+        { "id": "preto", "nome": "Preto", "gerada": true, "materiais": { "carpetWhite": "#2f3033", "metalMedium": "#1c1d1f" } },
+        { "id": "vermelho", "nome": "Vermelho", "gerada": true, "materiais": { "carpetWhite": "#b2423b" } }
+      ]
+    },
+    {
+      "id": "balcao", "nome": "Balcão", "categoria": "cozinha", "montagem": "piso", "superficie": {},
+      "arquivo": "models/cozinha/kitchenCabinet.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "porta", "nome": "Com porta" },
+        { "id": "gavetas", "nome": "Com gavetas", "arquivo": "models/cozinha/kitchenCabinetDrawer.glb" },
+        { "id": "cantoInterno", "nome": "Canto interno", "arquivo": "models/cozinha/kitchenCabinetCornerInner.glb" },
+        { "id": "cantoRedondo", "nome": "Canto redondo", "arquivo": "models/cozinha/kitchenCabinetCornerRound.glb" }
+      ]
+    },
+    {
+      "id": "pia", "nome": "Pia de cozinha", "categoria": "cozinha", "montagem": "piso", "superficie": { "altura": 0.9 },
+      "arquivo": "models/cozinha/kitchenSink.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "balcaoBar", "nome": "Balcão americano", "categoria": "cozinha", "montagem": "piso", "superficie": {},
+      "arquivo": "models/cozinha/kitchenBar.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "meio", "nome": "Módulo" },
+        { "id": "ponta", "nome": "Ponta", "arquivo": "models/cozinha/kitchenBarEnd.glb" }
+      ]
+    },
+    {
+      "id": "armarioAereo", "nome": "Armário aéreo", "categoria": "cozinha", "montagem": "parede", "alturaParede": 1.45,
+      "arquivo": "models/cozinha/kitchenCabinetUpper.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "simples", "nome": "Simples" },
+        { "id": "duplo", "nome": "Duplo", "arquivo": "models/cozinha/kitchenCabinetUpperDouble.glb" },
+        { "id": "baixo", "nome": "Baixo", "arquivo": "models/cozinha/kitchenCabinetUpperLow.glb" },
+        { "id": "canto", "nome": "De canto", "arquivo": "models/cozinha/kitchenCabinetUpperCorner.glb" }
+      ]
+    },
+    {
+      "id": "coifa", "nome": "Coifa", "categoria": "cozinha", "montagem": "parede", "alturaParede": 1.55,
+      "arquivo": "models/cozinha/hoodModern.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "moderna", "nome": "Moderna" },
+        { "id": "grande", "nome": "Grande", "arquivo": "models/cozinha/hoodLarge.glb" }
+      ]
+    },
+    {
+      "id": "torradeira", "nome": "Torradeira", "categoria": "cozinha", "montagem": "bancada",
+      "arquivo": "models/cozinha/toaster.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "liquidificador", "nome": "Liquidificador", "categoria": "cozinha", "montagem": "bancada",
+      "arquivo": "models/cozinha/kitchenBlender.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "cafeteira", "nome": "Cafeteira", "categoria": "cozinha", "montagem": "bancada",
+      "arquivo": "models/cozinha/kitchenCoffeeMachine.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "banqueta", "nome": "Banqueta", "categoria": "cozinha", "montagem": "piso",
+      "arquivo": "models/cozinha/stoolBar.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "redonda", "nome": "Redonda" },
+        { "id": "quadrada", "nome": "Quadrada", "arquivo": "models/cozinha/stoolBarSquare.glb" }
+      ]
+    },
+
+    {
+      "id": "vaso", "nome": "Vaso sanitário", "categoria": "banheiro", "montagem": "piso",
+      "arquivo": "models/banheiro/toilet.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "redondo", "nome": "Redondo" },
+        { "id": "quadrado", "nome": "Quadrado", "arquivo": "models/banheiro/toiletSquare.glb" }
+      ]
+    },
+    {
+      "id": "banheira", "nome": "Banheira", "categoria": "banheiro", "montagem": "piso", "escala": 1.5,
+      "arquivo": "models/banheiro/bathtub.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "chuveiro", "nome": "Box com chuveiro", "categoria": "banheiro", "montagem": "piso",
+      "arquivo": "models/banheiro/shower.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "quadrado", "nome": "Quadrado" },
+        { "id": "redondo", "nome": "Redondo", "arquivo": "models/banheiro/showerRound.glb" }
+      ]
+    },
+    {
+      "id": "piaBanheiro", "nome": "Pia de banheiro", "categoria": "banheiro", "montagem": "piso",
+      "arquivo": "models/banheiro/bathroomSink.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "coluna", "nome": "De coluna" },
+        { "id": "quadrada", "nome": "Quadrada", "arquivo": "models/banheiro/bathroomSinkSquare.glb" },
+        { "id": "gabinete", "nome": "Com gabinete", "arquivo": "models/banheiro/bathroomCabinetDrawer.glb" }
+      ]
+    },
+    {
+      "id": "armarioBanheiro", "nome": "Armário de parede", "categoria": "banheiro", "montagem": "parede", "alturaParede": 1.3,
+      "arquivo": "models/banheiro/bathroomCabinet.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "espelho", "nome": "Espelho", "categoria": "banheiro", "montagem": "parede", "alturaParede": 1.15,
+      "arquivo": "models/banheiro/bathroomMirror.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "lavanderia", "nome": "Lavadora e secadora", "categoria": "banheiro", "montagem": "piso",
+      "arquivo": "models/banheiro/washer.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "lavadora", "nome": "Lavadora" },
+        { "id": "secadora", "nome": "Secadora", "arquivo": "models/banheiro/dryer.glb" },
+        { "id": "empilhadas", "nome": "Lava e seca empilhadas", "arquivo": "models/banheiro/washerDryerStacked.glb" }
+      ]
+    },
+
+    {
+      "id": "mesa", "nome": "Mesa", "categoria": "mesas", "montagem": "piso", "superficie": {},
+      "arquivo": "models/mesas/table.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "simples", "nome": "Simples" },
+        { "id": "toalha", "nome": "Com toalha", "arquivo": "models/mesas/tableCloth.glb" },
+        { "id": "cruzada", "nome": "Pés cruzados", "arquivo": "models/mesas/tableCross.glb" },
+        { "id": "cruzadaToalha", "nome": "Pés cruzados com toalha", "arquivo": "models/mesas/tableCrossCloth.glb" },
+        { "id": "vidro", "nome": "Vidro", "arquivo": "models/mesas/tableGlass.glb" },
+        { "id": "redonda", "nome": "Redonda", "arquivo": "models/mesas/tableRound.glb" }
+      ]
+    },
+    {
+      "id": "cadeira", "nome": "Cadeira", "categoria": "mesas", "montagem": "piso",
+      "arquivo": "models/mesas/chair.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "madeira", "nome": "Madeira" },
+        { "id": "almofada", "nome": "Com almofada", "arquivo": "models/mesas/chairCushion.glb" },
+        { "id": "arredondada", "nome": "Arredondada", "arquivo": "models/mesas/chairRounded.glb" },
+        { "id": "moderna", "nome": "Moderna", "arquivo": "models/mesas/chairModernCushion.glb" },
+        { "id": "modernaAro", "nome": "Moderna com aro", "arquivo": "models/mesas/chairModernFrameCushion.glb" }
+      ]
+    },
+    {
+      "id": "banco", "nome": "Banco", "categoria": "mesas", "montagem": "piso",
+      "arquivo": "models/mesas/bench.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "madeira", "nome": "Madeira" },
+        { "id": "almofada", "nome": "Com almofada", "arquivo": "models/mesas/benchCushion.glb" },
+        { "id": "baixo", "nome": "Baixo", "arquivo": "models/mesas/benchCushionLow.glb" }
+      ]
+    },
+    {
+      "id": "mesaLateral", "nome": "Aparador", "categoria": "mesas", "montagem": "piso", "superficie": {},
+      "arquivo": "models/mesas/sideTable.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "simples", "nome": "Simples" },
+        { "id": "gavetas", "nome": "Com gavetas", "arquivo": "models/mesas/sideTableDrawers.glb" }
+      ]
+    },
+
+    {
+      "id": "tv", "nome": "TV de tela plana", "categoria": "eletronicos", "montagem": "parede", "alturaParede": 1.0,
+      "arquivo": "models/eletronicos/televisionModern.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "cinza", "nome": "Cinza" },
+        { "id": "preta", "nome": "Preta", "gerada": true, "materiais": { "metalDark": "#2a2c30", "metal": "#1b1c1f" } },
+        { "id": "grafite", "nome": "Grafite", "gerada": true, "materiais": { "metalDark": "#1d1e21", "metal": "#4a4e55" } }
+      ]
+    },
+    {
+      "id": "tvAntiga", "nome": "TV antiga", "categoria": "eletronicos", "montagem": "bancada",
+      "arquivo": "models/eletronicos/televisionVintage.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "madeira", "nome": "Madeira" },
+        { "id": "creme", "nome": "Creme", "gerada": true, "materiais": { "wood": "#e7dcc0" } }
+      ]
+    },
+    {
+      "id": "computador", "nome": "Computador", "categoria": "eletronicos", "montagem": "bancada",
+      "arquivo": "models/eletronicos/computerScreen.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "monitor", "nome": "Monitor" },
+        { "id": "notebook", "nome": "Notebook", "arquivo": "models/eletronicos/laptop.glb" }
+      ]
+    },
+    {
+      "id": "radio", "nome": "Rádio", "categoria": "eletronicos", "montagem": "bancada",
+      "arquivo": "models/eletronicos/radio.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "radio", "nome": "Rádio" },
+        { "id": "caixinha", "nome": "Caixinha de som", "arquivo": "models/eletronicos/speakerSmall.glb" }
+      ]
+    },
+    {
+      "id": "caixaSom", "nome": "Caixa de som", "categoria": "eletronicos", "montagem": "piso",
+      "arquivo": "models/eletronicos/speaker.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+
+    {
+      "id": "luminariaChao", "nome": "Luminária de chão", "categoria": "iluminacao", "montagem": "piso",
+      "arquivo": "models/iluminacao/lampRoundFloor.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "redonda", "nome": "Redonda" },
+        { "id": "quadrada", "nome": "Quadrada", "arquivo": "models/iluminacao/lampSquareFloor.glb" }
+      ]
+    },
+    {
+      "id": "luminariaMesa", "nome": "Abajur", "categoria": "iluminacao", "montagem": "bancada",
+      "arquivo": "models/iluminacao/lampRoundTable.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "redondo", "nome": "Redondo" },
+        { "id": "quadrado", "nome": "Quadrado", "arquivo": "models/iluminacao/lampSquareTable.glb" }
+      ]
+    },
+    {
+      "id": "arandela", "nome": "Arandela", "categoria": "iluminacao", "montagem": "parede", "alturaParede": 1.8,
+      "arquivo": "models/iluminacao/lampWall.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+
+    {
+      "id": "quadro", "nome": "Quadro", "categoria": "decoracao", "montagem": "parede", "alturaParede": 1.3,
+      "procedural": "quadro", "licenca": "Próprio (gerado em código)", "fonte": "procedural",
+      "variantes": [
+        { "id": "circulos", "nome": "Círculos", "parametros": { "arte": "circulos", "moldura": "#2b2b2b", "largura": 0.6, "altura": 0.8, "cores": ["#f1e3c8", "#d9643a", "#2f6f8f", "#e8b84a"] } },
+        { "id": "paisagem", "nome": "Paisagem", "parametros": { "arte": "paisagem", "moldura": "#a57a4c", "largura": 0.9, "altura": 0.6, "cores": ["#bfe0f0", "#7aa36b", "#4f7a4a", "#f2d27a"] } },
+        { "id": "listras", "nome": "Listras", "parametros": { "arte": "listras", "moldura": "#f4f4f2", "largura": 0.5, "altura": 0.5, "cores": ["#e85d4a", "#f2c14e", "#3d8b8b", "#f6efe2"] } },
+        { "id": "blocos", "nome": "Blocos", "parametros": { "arte": "blocos", "moldura": "#d9d4c7", "largura": 0.7, "altura": 0.9, "cores": ["#f5f0e6", "#c0392b", "#2c3e70", "#f1c40f"] } }
+      ]
+    },
+    {
+      "id": "plantaGrande", "nome": "Planta grande", "categoria": "decoracao", "montagem": "piso",
+      "arquivo": "models/decoracao/pottedPlant.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "vasinho", "nome": "Vasinho", "categoria": "decoracao", "montagem": "bancada",
+      "arquivo": "models/decoracao/plantSmall1.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "a", "nome": "Modelo 1" },
+        { "id": "b", "nome": "Modelo 2", "arquivo": "models/decoracao/plantSmall2.glb" },
+        { "id": "c", "nome": "Modelo 3", "arquivo": "models/decoracao/plantSmall3.glb" }
+      ]
+    },
+    {
+      "id": "livros", "nome": "Livros", "categoria": "decoracao", "montagem": "bancada",
+      "arquivo": "models/decoracao/books.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "almofada", "nome": "Almofada", "categoria": "decoracao", "montagem": "bancada",
+      "arquivo": "models/decoracao/pillow.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "quadrada", "nome": "Quadrada" },
+        { "id": "longa", "nome": "Longa", "arquivo": "models/decoracao/pillowLong.glb" },
+        { "id": "azul", "nome": "Azul", "arquivo": "models/decoracao/pillowBlue.glb" },
+        { "id": "azulLonga", "nome": "Azul longa", "arquivo": "models/decoracao/pillowBlueLong.glb" }
+      ]
+    },
+    {
+      "id": "ursinho", "nome": "Ursinho", "categoria": "decoracao", "montagem": "bancada",
+      "arquivo": "models/decoracao/bear.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "caixas", "nome": "Caixa de papelão", "categoria": "decoracao", "montagem": "piso",
+      "arquivo": "models/decoracao/cardboardBoxClosed.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [
+        { "id": "fechada", "nome": "Fechada" },
+        { "id": "aberta", "nome": "Aberta", "arquivo": "models/decoracao/cardboardBoxOpen.glb" }
+      ]
+    },
+    {
+      "id": "lixeira", "nome": "Lixeira", "categoria": "decoracao", "montagem": "piso",
+      "arquivo": "models/decoracao/trashcan.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "cabideiro", "nome": "Cabideiro", "categoria": "decoracao", "montagem": "piso",
+      "arquivo": "models/decoracao/coatRackStanding.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    },
+    {
+      "id": "cabideiroParede", "nome": "Cabideiro de parede", "categoria": "decoracao", "montagem": "parede", "alturaParede": 1.5,
+      "arquivo": "models/decoracao/coatRack.glb", "licenca": "CC0", "fonte": "kenney-furniture-kit",
+      "variantes": [{ "id": "padrao", "nome": "Padrão" }]
+    }
+  ]
+}

@@ -18,13 +18,44 @@ export function createCamera(aspect: number): THREE.PerspectiveCamera {
 }
 
 /**
- * Distância para que uma esfera de raio `radius` caiba na tela. O fov da câmera é
- * vertical; numa tela em pé (aspect < 1) o ângulo horizontal é menor e é ele que limita.
+ * Distância para que uma esfera de raio `radius` caiba numa região visível de
+ * visibleW × visibleH pixels de um canvas com fullH pixels de altura.
+ *
+ * O fov da câmera é o ângulo VERTICAL do canvas inteiro. A tangente do meio-ângulo
+ * cresce linearmente com a distância em pixels a partir do centro, então o
+ * meio-ângulo de uma região menor é atan(tan(fov/2) × tamanho / fullH). O lado
+ * mais curto da região (na tela em pé, a largura) é o que limita.
  */
-function fitDistance(camera: THREE.PerspectiveCamera, radius: number): number {
-  const vFov = THREE.MathUtils.degToRad(camera.fov);
-  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
-  return radius / Math.sin(Math.min(vFov, hFov) / 2);
+function fitDistance(fovDegrees: number, visibleW: number, visibleH: number, fullH: number, radius: number): number {
+  const tanHalf = Math.tan(THREE.MathUtils.degToRad(fovDegrees) / 2);
+  const halfAngle = Math.atan((tanHalf * Math.min(visibleW, visibleH)) / fullH);
+  return radius / Math.sin(halfAngle);
+}
+
+function houseCenter(bounds: Bounds2D): THREE.Vector3 {
+  return new THREE.Vector3((bounds.minX + bounds.maxX) / 2, 0, (bounds.minZ + bounds.maxZ) / 2);
+}
+
+function halfDiagonal(bounds: Bounds2D): number {
+  return Math.hypot(bounds.maxX - bounds.minX, bounds.maxZ - bounds.minZ) / 2;
+}
+
+/**
+ * Vista em 3/4 do lado da entrada (sul, z menor), afastada o bastante para a casa
+ * inteira caber na área visível (a parte do canvas que os painéis não cobrem).
+ */
+export function frameHouse(
+  camera: THREE.PerspectiveCamera,
+  controls: OrbitControls,
+  bounds: Bounds2D,
+  visible: { width: number; height: number; fullHeight: number },
+): void {
+  const distance = fitDistance(camera.fov, visible.width, visible.height, visible.fullHeight, halfDiagonal(bounds) + 0.8);
+  const direction = new THREE.Vector3(-0.3, 0.72, -0.62).normalize();
+  controls.target.copy(houseCenter(bounds));
+  camera.position.copy(controls.target).addScaledVector(direction, distance);
+  controls.maxDistance = Math.max(32, distance * 1.2);
+  controls.update();
 }
 
 /**
@@ -34,28 +65,16 @@ function fitDistance(camera: THREE.PerspectiveCamera, radius: number): number {
 export function createOrbitControls(
   camera: THREE.PerspectiveCamera,
   domElement: HTMLElement,
-  houseBounds: Bounds2D,
+  bounds: Bounds2D,
 ): OrbitControls {
   const controls = new OrbitControls(camera, domElement);
-
-  const centerX = (houseBounds.minX + houseBounds.maxX) / 2;
-  const centerZ = (houseBounds.minZ + houseBounds.maxZ) / 2;
-  controls.target.set(centerX, 0, centerZ);
-
-  // Vista inicial em 3/4, do lado da entrada (sul, z menor), afastada o bastante
-  // para a casa inteira caber na tela, inclusive num celular em pé.
-  const halfDiagonal = Math.hypot(houseBounds.maxX - centerX, houseBounds.maxZ - centerZ);
-  const direction = new THREE.Vector3(-0.3, 0.72, -0.62).normalize();
-  const distance = fitDistance(camera, halfDiagonal + 0.8);
-  camera.position.copy(controls.target).addScaledVector(direction, distance);
 
   // Inércia: o movimento desacelera suavemente. Exige chamar controls.update() a cada frame.
   controls.enableDamping = true;
   controls.dampingFactor = 0.12;
 
-  // Zoom mínimo/máximo (distância da câmera ao target).
+  // Zoom mínimo (distância da câmera ao target). O máximo é definido em frameHouse().
   controls.minDistance = 2.5;
-  controls.maxDistance = Math.max(32, distance * 1.2);
 
   // Ângulo polar: 0 = olhando de cima, PI/2 = olhando na horizontal.
   // Ficando um pouco abaixo de PI/2, a câmera nunca desce abaixo do plano do target.
@@ -68,9 +87,9 @@ export function createOrbitControls(
   // O target não pode se afastar mais que maxTargetRadius do "cursor" (centro da casa).
   // Com o pan no plano XZ ele fica sempre na altura do piso, e como a câmera
   // fica sempre acima do target, ela nunca entra no chão.
-  controls.cursor.set(centerX, 0, centerZ);
-  controls.maxTargetRadius = halfDiagonal + 1;
+  controls.cursor.copy(houseCenter(bounds));
+  controls.maxTargetRadius = halfDiagonal(bounds) + 1;
 
-  controls.update();
+  frameHouse(camera, controls, bounds, { width: camera.aspect, height: 1, fullHeight: 1 });
   return controls;
 }

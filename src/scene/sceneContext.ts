@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createRenderer } from './renderer';
-import { createCamera, createOrbitControls, type Bounds2D } from './camera';
+import { createCamera, createOrbitControls, frameHouse, type Bounds2D } from './camera';
 import { createLights } from './lights';
 import { applyEnvironment } from './environment';
 
@@ -16,6 +16,13 @@ export interface SceneContext {
   requestRender(): void;
   /** Avisa que objetos mudaram e o mapa de sombra precisa ser refeito. */
   invalidateShadows(): void;
+  /**
+   * Informa quanto da tela os painéis cobrem (px à esquerda e embaixo), para
+   * centralizar a imagem na área livre.
+   */
+  setViewInsets(left: number, bottom: number): void;
+  /** Reposiciona a câmera na vista inicial, enquadrando a casa na área livre. */
+  frameHouse(): void;
 }
 
 export function createSceneContext(container: HTMLElement, houseBounds: Bounds2D): SceneContext {
@@ -38,6 +45,32 @@ export function createSceneContext(container: HTMLElement, houseBounds: Bounds2D
 
   controls.addEventListener('change', requestRender);
 
+  // Painéis por cima do canvas: deslocamos o centro da projeção com setViewOffset,
+  // como se a imagem fosse um recorte de uma tela maior. A câmera continua no mesmo
+  // lugar; só o ponto para onde ela olha vai parar no meio da área livre.
+  const insets = { left: 0, bottom: 0 };
+  const applyViewOffset = () => {
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    if (insets.left === 0 && insets.bottom === 0) camera.clearViewOffset();
+    else camera.setViewOffset(w, h, -insets.left / 2, insets.bottom / 2, w, h);
+  };
+  const setViewInsets = (left: number, bottom: number) => {
+    insets.left = left;
+    insets.bottom = bottom;
+    applyViewOffset();
+    requestRender();
+  };
+  const frame = () => {
+    const fullHeight = container.clientHeight;
+    frameHouse(camera, controls, houseBounds, {
+      width: Math.max(1, container.clientWidth - insets.left),
+      height: Math.max(1, fullHeight - insets.bottom),
+      fullHeight,
+    });
+    requestRender();
+  };
+
   // O canvas acompanha o tamanho do container (janela, rotação do celular etc.).
   const resizeObserver = new ResizeObserver(() => {
     const w = container.clientWidth;
@@ -45,6 +78,7 @@ export function createSceneContext(container: HTMLElement, houseBounds: Bounds2D
     if (w === 0 || h === 0) return;
     renderer.setSize(w, h);
     camera.aspect = w / h;
+    applyViewOffset();
     // Toda mudança em fov/aspect/near/far precisa recalcular a matriz de projeção.
     camera.updateProjectionMatrix();
     requestRender();
@@ -62,5 +96,5 @@ export function createSceneContext(container: HTMLElement, houseBounds: Bounds2D
     renderer.render(scene, camera);
   });
 
-  return { renderer, scene, camera, controls, sun, requestRender, invalidateShadows };
+  return { renderer, scene, camera, controls, sun, requestRender, invalidateShadows, setViewInsets, frameHouse: frame };
 }
