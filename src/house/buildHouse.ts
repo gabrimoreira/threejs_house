@@ -20,13 +20,26 @@ export interface PaintRange {
   count: number;
 }
 
+/** As partes de uma parede, para o modo de visualização cortar/esconder cada uma. */
+export interface WallParts {
+  wall: Wall;
+  group: THREE.Group;
+  masonry: THREE.Mesh;
+  /** Caixilhos das janelas (ficam fora da alvenaria para sumirem quando a parede é cortada). */
+  frames: THREE.Mesh | null;
+  glass: THREE.Mesh | null;
+  doors: THREE.Object3D[];
+}
+
 export interface BuiltHouse {
   group: THREE.Group;
   materials: HouseMaterials;
   /** Malha de piso de cada cômodo, por id. */
   floors: Map<string, THREE.Mesh>;
-  /** Malha de cada parede, por id. */
+  /** Malha de alvenaria de cada parede, por id. */
   walls: Map<string, THREE.Mesh>;
+  /** Todas as partes de cada parede, por id. */
+  wallParts: Map<string, WallParts>;
   /** Caixas de colisão das paredes e das portas, em coordenadas de mundo. */
   colliders: WallCollider[];
   dispose(): void;
@@ -51,14 +64,21 @@ export async function buildHouse(house: HouseData, maxAnisotropy: number): Promi
   }
 
   const walls = new Map<string, THREE.Mesh>();
+  const wallParts = new Map<string, WallParts>();
   const colliders: WallCollider[] = [];
   const doorJobs: Promise<void>[] = [];
   for (const wall of house.paredes) {
-    const wallGroup = buildWall(wall, house, materials, colliders);
-    walls.set(wall.id, wallGroup.getObjectByName('alvenaria') as THREE.Mesh);
-    group.add(wallGroup);
+    const parts = buildWall(wall, house, materials, colliders);
+    walls.set(wall.id, parts.masonry);
+    wallParts.set(wall.id, parts);
+    group.add(parts.group);
     for (const op of wall.aberturas ?? []) {
-      if (op.tipo === 'porta') doorJobs.push(addDoor(wallGroup, op, house.espessuraParede));
+      if (op.tipo !== 'porta') continue;
+      doorJobs.push(
+        addDoor(parts.group, op, house.espessuraParede).then((door) => {
+          if (door) parts.doors.push(door);
+        }),
+      );
     }
   }
   await Promise.all(doorJobs);
@@ -68,6 +88,7 @@ export async function buildHouse(house: HouseData, maxAnisotropy: number): Promi
     materials,
     floors,
     walls,
+    wallParts,
     colliders,
     dispose() {
       // As portas usam geometria do cache de modelos: não podem ser descartadas aqui.
@@ -130,10 +151,10 @@ function paintBox(geometry: THREE.BufferGeometry, faceColors: THREE.Color[]): vo
  *
  * A parede é fatiada em caixas: trechos inteiros entre vãos, e acima/abaixo de cada vão.
  * Também cortamos onde o cômodo vizinho muda, para que cada face receba a cor do cômodo
- * daquele lado. No fim, todas as caixas (e os caixilhos das janelas) são fundidas numa
- * única geometria com cores por vértice: uma parede = um draw call.
+ * daquele lado. No fim, todas as caixas são fundidas numa única geometria com cores
+ * por vértice: uma parede = um draw call. Caixilhos e vidros ficam em malhas à parte.
  */
-function buildWall(wall: Wall, house: HouseData, materials: HouseMaterials, colliders: WallCollider[]): THREE.Group {
+function buildWall(wall: Wall, house: HouseData, materials: HouseMaterials, colliders: WallCollider[]): WallParts {
   const t = house.espessuraParede;
   const H = house.alturaParede;
   const [x0, z0] = wall.de;
@@ -270,19 +291,6 @@ function buildWall(wall: Wall, house: HouseData, materials: HouseMaterials, coll
     addCollider(op.offset, op.offset + op.largura, 0, op.altura, reach, 'porta');
   }
 
-  // Janelas: o caixilho entra na mesma geometria da parede; os vidros formam outra malha.
-  const glassPanes: THREE.BufferGeometry[] = [];
-  for (const op of openings) {
-    if (op.tipo !== 'janela') continue;
-    const frames = buildWindowFrame(op);
-    for (const g of frames) {
-      paintBox(g, Array(6).fill(frameColor));
-      vertexOffset += g.attributes.position.count;
-      pieces.push(g);
-    }
-    glassPanes.push(buildWindowGlass(op));
-  }
-
   const masonry = new THREE.Mesh(mergeGeometries(pieces), materials.walls);
   pieces.forEach((g) => g.dispose());
   masonry.name = 'alvenaria';
@@ -291,8 +299,28 @@ function buildWall(wall: Wall, house: HouseData, materials: HouseMaterials, coll
   masonry.userData = { wallId: wall.id, paintRanges };
   group.add(masonry);
 
-  if (glassPanes.length > 0) {
-    const glass = new THREE.Mesh(mergeGeometries(glassPanes), materials.glass);
+  // Janelas: caixilhos (com o mesmo material de cor por vértice) e vidros, cada um numa malha.
+  const frameBars: THREE.BufferGeometry[] = [];
+  const glassPanes: THREE.BufferGeometry[] = [];
+  for (const op of openings) {
+    if (op.tipo !== 'janela') continue;
+    for (const g of buildWindowFrame(op)) {
+      paintBox(g, Array(6).fill(frameColor));
+      frameBars.push(g);
+    }
+    glassPanes.push(buildWindowGlass(op));
+  }
+
+  let frames: THREE.Mesh | null = null;
+  let glass: THREE.Mesh | null = null;
+  if (frameBars.length > 0) {
+    frames = new THREE.Mesh(mergeGeometries(frameBars), materials.walls);
+    frameBars.forEach((g) => g.dispose());
+    frames.name = 'caixilhos';
+    frames.castShadow = true;
+    group.add(frames);
+
+    glass = new THREE.Mesh(mergeGeometries(glassPanes), materials.glass);
     glassPanes.forEach((g) => g.dispose());
     glass.name = 'vidros';
     // O vidro não projeta sombra: o sol entra pela janela.
@@ -300,7 +328,7 @@ function buildWall(wall: Wall, house: HouseData, materials: HouseMaterials, coll
     group.add(glass);
   }
 
-  return group;
+  return { wall, group, masonry, frames, glass, doors: [] };
 }
 
 const FRAME = 0.06;
@@ -332,7 +360,7 @@ function buildWindowGlass(op: Opening): THREE.BufferGeometry {
 }
 
 /** Porta: modelo da Kenney esticado para caber exatamente no vão. */
-async function addDoor(wallGroup: THREE.Group, op: Opening, wallThickness: number): Promise<void> {
+async function addDoor(wallGroup: THREE.Group, op: Opening, wallThickness: number): Promise<THREE.Object3D | null> {
   const path = op.modelo ?? DEFAULT_DOOR_MODEL;
   try {
     const template = await loadTemplate(path);
@@ -342,7 +370,9 @@ async function addDoor(wallGroup: THREE.Group, op: Opening, wallThickness: numbe
     door.position.set(op.offset + op.largura / 2, 0, 0);
     door.traverse((obj) => (obj.userData.sharedGeometry = true));
     wallGroup.add(door);
+    return door;
   } catch (err) {
     console.warn(`Não foi possível carregar a porta ${path}`, err);
+    return null;
   }
 }

@@ -10,7 +10,7 @@ import type { WorldView } from '../state/worldView';
 import { Emitter } from '../utils/emitter';
 import { Picker } from './picking';
 import { Ghost } from './ghost';
-import { SelectionHighlight } from './highlight';
+import { SelectionHighlight, frameGeometry } from './highlight';
 import { GRID_STEP, rotatedExtents } from './snapping';
 import { PlacementRules, type Candidate, type ItemGeometry } from './rules/placementRules';
 import type { History } from './commands/History';
@@ -29,6 +29,8 @@ type EditorEvents = {
   placement: PlacementStatus | null;
   /** uid do item selecionado (ou null). Também é emitido quando o item selecionado muda. */
   selection: string | null;
+  /** Cômodo selecionado (clique no piso vazio), para trocar piso e pintura. */
+  room: string | null;
   /** Aviso curto para o usuário (ex.: ação recusada). */
   message: string;
   /** Instrução fixa enquanto um modo estiver ativo (ou null para limpar). */
@@ -74,6 +76,7 @@ const CLICK_TOLERANCE = 6;
 const FREE_ROTATION_SPEED = 0.6;
 const WALL_ITEM_ROTATION = 'Itens de parede ficam sempre de frente para o cômodo.';
 const NOTHING_IGNORED = new Set<string>();
+const ROOM_FRAME_MATERIAL = new THREE.MeshBasicMaterial({ color: '#2f9e6a', transparent: true, opacity: 0.8, depthWrite: false });
 
 const normalizeDegrees = (deg: number) => ((Math.round(deg) % 360) + 360) % 360;
 
@@ -95,6 +98,8 @@ export class Editor extends Emitter<EditorEvents> {
   private readonly house: HouseData;
   /** Malhas que escondem itens atrás delas no raycasting (paredes). */
   private readonly occluders: THREE.Object3D[];
+  /** Malha de piso de cada cômodo, para selecionar o cômodo com um clique. */
+  private readonly floors: Map<string, THREE.Mesh>;
   private readonly picker: Picker;
   private readonly rules: PlacementRules;
   private readonly highlight = new SelectionHighlight();
@@ -102,6 +107,9 @@ export class Editor extends Emitter<EditorEvents> {
   private placement: Placement | null = null;
   private placementToken = 0;
   private selectedUid: string | null = null;
+  private selectedRoom: string | null = null;
+  private roomFrame: THREE.Mesh | null = null;
+  private enabled = true;
   private drag: Drag | null = null;
   private freeRotation: FreeRotation | null = null;
   private pointerStart: { x: number; y: number; id: number } | null = null;
@@ -113,7 +121,7 @@ export class Editor extends Emitter<EditorEvents> {
     view: WorldView,
     history: History,
     house: HouseData,
-    walls: { occluders: THREE.Object3D[]; colliders: WallCollider[] },
+    house3d: { occluders: THREE.Object3D[]; colliders: WallCollider[]; floors: Map<string, THREE.Mesh> },
   ) {
     super();
     this.ctx = ctx;
@@ -121,9 +129,10 @@ export class Editor extends Emitter<EditorEvents> {
     this.view = view;
     this.history = history;
     this.house = house;
-    this.occluders = walls.occluders;
+    this.occluders = house3d.occluders;
+    this.floors = house3d.floors;
     this.picker = new Picker(ctx.camera, ctx.renderer.domElement);
-    this.rules = new PlacementRules(house, walls.colliders, world, this.geometryOf);
+    this.rules = new PlacementRules(house, house3d.colliders, world, this.geometryOf);
 
     const dom = ctx.renderer.domElement;
     // pointerdown em fase de CAPTURA: roda antes do listener do OrbitControls no mesmo
@@ -288,12 +297,55 @@ export class Editor extends Emitter<EditorEvents> {
 
   select(uid: string | null): void {
     this.cancelFreeRotation();
+    if (uid) this.selectRoom(null);
     this.highlight.detach();
     this.selectedUid = uid;
     const object = uid ? this.view.objectFor(uid) : undefined;
     if (object) this.attachHighlight(object);
     this.ctx.requestRender();
     this.emit('selection', uid);
+  }
+
+  get roomSelection(): string | null {
+    return this.selectedRoom;
+  }
+
+  /** Seleciona um cômodo: mostra uma moldura no piso dele e avisa a UI (painel de piso/pintura). */
+  selectRoom(roomId: string | null): void {
+    if (roomId) this.select(null);
+    if (this.roomFrame) {
+      this.roomFrame.removeFromParent();
+      this.roomFrame.geometry.dispose();
+      this.roomFrame = null;
+    }
+    this.selectedRoom = roomId;
+    const room = roomId ? this.house.comodos.find((r) => r.id === roomId) : undefined;
+    if (room) {
+      // Moldura por dentro das paredes (meia espessura para dentro de cada lado).
+      const inset = this.house.espessuraParede / 2 + 0.06;
+      const frame = new THREE.Mesh(
+        frameGeometry(room.largura - 2 * inset, room.profundidade - 2 * inset, 0.06),
+        ROOM_FRAME_MATERIAL,
+      );
+      frame.rotation.x = -Math.PI / 2;
+      frame.position.set(room.x + room.largura / 2, 0.012, room.z + room.profundidade / 2);
+      frame.renderOrder = 1;
+      this.ctx.scene.add(frame);
+      this.roomFrame = frame;
+    }
+    this.ctx.requestRender();
+    this.emit('room', roomId);
+  }
+
+  /** Liga/desliga o editor (desligado no modo 1ª pessoa). Desligar cancela o que estiver em andamento. */
+  setEnabled(enabled: boolean): void {
+    if (!enabled) {
+      this.cancelTransient();
+      this.cancelPlacement();
+      this.select(null);
+      this.selectRoom(null);
+    }
+    this.enabled = enabled;
   }
 
   private attachHighlight(object: THREE.Object3D): void {
@@ -644,7 +696,7 @@ export class Editor extends Emitter<EditorEvents> {
    * o item está escondido atrás dela e não deve ser selecionado.
    */
   private pickItem(): string | null {
-    const hits = this.picker.raycaster.intersectObjects([this.view.group, ...this.occluders], true);
+    const hits = this.picker.raycaster.intersectObjects([this.view.group, ...this.solidWalls()], true);
     const first = hits[0];
     if (!first) return null;
     let obj: THREE.Object3D | null = first.object;
@@ -652,9 +704,22 @@ export class Editor extends Emitter<EditorEvents> {
     return obj ? (obj.userData.uid as string) : null;
   }
 
+  /** Cômodo cujo piso está sob o ponteiro (se nenhuma parede estiver na frente). */
+  private pickRoom(): string | null {
+    const hits = this.picker.raycaster.intersectObjects([...this.floors.values(), ...this.solidWalls()], false);
+    const roomId = hits[0]?.object.userData.roomId;
+    return typeof roomId === 'string' ? roomId : null;
+  }
+
+  /** Paredes que bloqueiam o clique (as transparentes não bloqueiam). */
+  private solidWalls(): THREE.Object3D[] {
+    return this.occluders.filter((o) => !o.userData.seeThrough);
+  }
+
   // ---------------------------------------------------------------- eventos
 
   private onPointerDown = (event: PointerEvent) => {
+    if (!this.enabled) return;
     // Durante um arrasto, outros dedos não fazem nada (nem giram a câmera).
     if (this.drag) {
       event.stopImmediatePropagation();
@@ -677,6 +742,7 @@ export class Editor extends Emitter<EditorEvents> {
   };
 
   private onPointerMove = (event: PointerEvent) => {
+    if (!this.enabled) return;
     this.lastPointerX = event.clientX;
     if (this.drag && event.pointerId === this.drag.pointerId) {
       this.updateDrag(event);
@@ -699,6 +765,7 @@ export class Editor extends Emitter<EditorEvents> {
   };
 
   private onPointerUp = (event: PointerEvent) => {
+    if (!this.enabled) return;
     if (this.drag && event.pointerId === this.drag.pointerId) {
       // Se não houve movimento, foi só um clique no item já selecionado: endDrag não grava nada.
       this.endDrag(true);
@@ -720,9 +787,16 @@ export class Editor extends Emitter<EditorEvents> {
       return;
     }
 
-    // Clique/toque simples: seleciona o item sob o ponteiro, ou desmarca se for o vazio.
+    // Clique/toque simples: seleciona o item sob o ponteiro; no piso vazio, seleciona o
+    // cômodo (para trocar piso/pintura); fora da casa, desmarca tudo.
     this.picker.setFromEvent(event);
-    this.select(this.pickItem());
+    const uid = this.pickItem();
+    if (uid) {
+      this.select(uid);
+      return;
+    }
+    this.select(null);
+    this.selectRoom(this.pickRoom());
   };
 
   private onPointerCancel = (event: PointerEvent) => {
@@ -734,7 +808,7 @@ export class Editor extends Emitter<EditorEvents> {
     const target = event.target as HTMLElement | null;
     if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
     // Com um diálogo aberto (ex.: "Minhas casas"), os atalhos do editor ficam desligados.
-    if (document.querySelector('dialog[open]')) return;
+    if (!this.enabled || document.querySelector('dialog[open]')) return;
     const key = event.key.toLowerCase();
     const mod = event.ctrlKey || event.metaKey;
 
@@ -751,7 +825,10 @@ export class Editor extends Emitter<EditorEvents> {
       if (this.freeRotation) this.cancelFreeRotation();
       else if (this.drag) this.endDrag(false);
       else if (this.placement) this.cancelPlacement();
-      else this.select(null);
+      else {
+        this.select(null);
+        this.selectRoom(null);
+      }
     } else if (key === 'r' && !mod) {
       if (this.placement) this.rotatePlacement(90);
       else if (this.freeRotation) this.confirmFreeRotation();

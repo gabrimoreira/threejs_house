@@ -23,6 +23,8 @@ export interface SceneContext {
   setViewInsets(left: number, bottom: number): void;
   /** Reposiciona a câmera na vista inicial, enquadrando a casa na área livre. */
   frameHouse(): void;
+  /** Registra uma função chamada a cada frame com o tempo decorrido (s). */
+  onFrame(fn: (dt: number) => void): void;
 }
 
 export function createSceneContext(container: HTMLElement, houseBounds: Bounds2D): SceneContext {
@@ -85,16 +87,35 @@ export function createSceneContext(container: HTMLElement, houseBounds: Bounds2D
   });
   resizeObserver.observe(container);
 
+  const frameCallbacks: ((dt: number) => void)[] = [];
+  let lastTime = performance.now();
+
   // Loop de animação. O requestAnimationFrame roda sempre (sincronizado com a tela),
   // mas só desenhamos quando há mudança: economiza bateria no notebook e no celular.
-  renderer.setAnimationLoop(() => {
+  renderer.setAnimationLoop((time) => {
+    // dt limitado: se a aba ficou em segundo plano, não dá um "salto" enorme.
+    const dt = Math.min((time - lastTime) / 1000, 0.1);
+    lastTime = time;
+    for (const fn of frameCallbacks) fn(dt);
     // Com damping, o update() continua movendo a câmera por alguns frames
     // depois que o usuário solta o mouse; ele dispara 'change' enquanto isso.
-    controls.update();
+    // Desligado (1ª pessoa), não chamamos: o update() faria camera.lookAt(target).
+    if (controls.enabled) controls.update();
     if (!needsRender) return;
     needsRender = false;
     renderer.render(scene, camera);
   });
 
-  return { renderer, scene, camera, controls, sun, requestRender, invalidateShadows, setViewInsets, frameHouse: frame };
+  return {
+    renderer,
+    scene,
+    camera,
+    controls,
+    sun,
+    requestRender,
+    invalidateShadows,
+    setViewInsets,
+    frameHouse: frame,
+    onFrame: (fn) => frameCallbacks.push(fn),
+  };
 }

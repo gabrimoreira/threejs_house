@@ -102,6 +102,14 @@ export class HouseMaterials {
   // a cor de cada face fica gravada na geometria, então uma parede inteira,
   // com várias cores, vira um único draw call.
   readonly walls = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92 });
+  // Versão translúcida, usada no modo "paredes transparentes".
+  readonly wallsFaded = new THREE.MeshStandardMaterial({
+    vertexColors: true,
+    roughness: 0.92,
+    transparent: true,
+    opacity: 0.2,
+    depthWrite: false,
+  });
   // Vidro barato: transparência simples. depthWrite=false evita que o vidro "apague"
   // o que está atrás dele no depth buffer.
   readonly glass = new THREE.MeshStandardMaterial({
@@ -170,7 +178,7 @@ export class HouseMaterials {
 
   /** Libera da GPU todos os materiais e texturas criados aqui. */
   dispose(): void {
-    const all = [this.walls, this.glass, this.ground, ...this.floorCache.values()];
+    const all = [this.walls, this.wallsFaded, this.glass, this.ground, ...this.floorCache.values()];
     for (const mat of all) {
       mat.map?.dispose();
       mat.dispose();

@@ -71,9 +71,8 @@ export class SelectionHighlight {
   }
 }
 
-/** Retângulo vazado (moldura) de w × d, com bordas de 4 cm, no plano XY. */
-function frameGeometry(w: number, d: number): THREE.ShapeGeometry {
-  const border = 0.04;
+/** Retângulo vazado (moldura) de w × d, com bordas de `border` m, no plano XY. */
+export function frameGeometry(w: number, d: number, border = 0.04): THREE.ShapeGeometry {
   const outer = new THREE.Shape();
   outer.moveTo(-w / 2 - border, -d / 2 - border);
   outer.lineTo(w / 2 + border, -d / 2 - border);

@@ -12,15 +12,22 @@
       <div id="ui">
         <div id="sidebar" class="sidebar">
           <header class="hud">
-            <div class="hud-text">
-              <h1>Casa Sandbox</h1>
-              <p class="save-status" id="save-status"></p>
-              <p class="hint">Clique num móvel para editar. Arraste para girar a câmera · roda/pinça: zoom · botão direito/dois dedos: mover</p>
+            <div class="hud-top">
+              <div class="hud-title">
+                <h1>Casa Sandbox</h1>
+                <p class="save-status" id="save-status"></p>
+              </div>
+              <div class="toolbar" id="toolbar"></div>
             </div>
-            <div class="toolbar" id="toolbar"></div>
+            <div class="view-tools" id="view-tools"></div>
+            <p class="hint">Clique num móvel para editar, ou no piso para trocar piso e pintura. Arraste para girar a câmera · roda/pinça: zoom · botão direito/dois dedos: mover</p>
           </header>
         </div>
         <div id="loading" class="loading">Carregando…</div>
+        <div class="fp-overlay" aria-hidden="true">
+          <div class="crosshair"></div>
+          <p>WASD ou setas para andar · mouse para olhar · Shift corre · Esc sai</p>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

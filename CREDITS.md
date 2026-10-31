@@ -25,8 +25,9 @@ Arquivos usados (formato GLB, sem modificação; recolorações das variantes "g
 - Pisos (tábuas, azulejo, carpete, liso): texturas desenhadas em `<canvas>` em `src/house/materials.ts`.
 - Paredes e janelas: geometria gerada a partir de `src/house/house.json` em `src/house/buildHouse.ts`.
 - Quadros (item "Quadro" do catálogo): moldura e arte desenhadas em código em `src/catalog/procedural.ts`.
+- Ícone da página (`public/favicon.svg`).
 
 ## Código de terceiros
 
-- [three.js](https://threejs.org) e seus addons (OrbitControls, GLTFLoader, RoomEnvironment, BufferGeometryUtils): licença MIT.
+- [three.js](https://threejs.org) e seus addons (OrbitControls, PointerLockControls, GLTFLoader, RoomEnvironment, BufferGeometryUtils): licença MIT.
 - [idb-keyval](https://github.com/jakearchibald/idb-keyval): licença Apache-2.0.
