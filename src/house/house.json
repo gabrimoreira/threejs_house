@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "alturaParede": 2.6,
+  "espessuraParede": 0.15,
+  "corExterna": "#f1ede4",
+  "comodos": [
+    { "id": "sala", "nome": "Sala", "x": 0, "z": 0, "largura": 6, "profundidade": 5, "piso": "madeiraClara", "corParede": "#ece4d6" },
+    { "id": "cozinha", "nome": "Cozinha", "x": 6, "z": 0, "largura": 4, "profundidade": 5, "piso": "ceramica", "corParede": "#f4efdf" },
+    { "id": "quarto", "nome": "Quarto", "x": 0, "z": 5, "largura": 6, "profundidade": 4, "piso": "madeiraEscura", "corParede": "#dbe6ee" },
+    { "id": "banheiro", "nome": "Banheiro", "x": 6, "z": 5, "largura": 4, "profundidade": 4, "piso": "azulejo", "corParede": "#dcefe8" }
+  ],
+  "paredes": [
+    {
+      "id": "p-sul",
+      "de": [0, 0],
+      "ate": [10, 0],
+      "aberturas": [
+        { "tipo": "porta", "offset": 2.3, "largura": 1.0, "altura": 2.1, "modelo": "models/casa/doorwayFront.glb" },
+        { "tipo": "janela", "offset": 4.0, "largura": 1.4, "altura": 1.2, "peitoril": 0.9 },
+        { "tipo": "janela", "offset": 7.4, "largura": 1.4, "altura": 1.0, "peitoril": 1.1 }
+      ]
+    },
+    {
+      "id": "p-leste",
+      "de": [10, 0],
+      "ate": [10, 9],
+      "aberturas": [
+        { "tipo": "janela", "offset": 1.8, "largura": 1.2, "altura": 1.0, "peitoril": 1.1 },
+        { "tipo": "janela", "offset": 6.6, "largura": 0.8, "altura": 0.6, "peitoril": 1.5 }
+      ]
+    },
+    {
+      "id": "p-norte",
+      "de": [0, 9],
+      "ate": [10, 9],
+      "aberturas": [{ "tipo": "janela", "offset": 2.2, "largura": 1.6, "altura": 1.2, "peitoril": 0.9 }]
+    },
+    {
+      "id": "p-oeste",
+      "de": [0, 0],
+      "ate": [0, 9],
+      "aberturas": [
+        { "tipo": "janela", "offset": 1.8, "largura": 1.4, "altura": 1.2, "peitoril": 0.9 },
+        { "tipo": "janela", "offset": 6.4, "largura": 1.2, "altura": 1.2, "peitoril": 0.9 }
+      ]
+    },
+    {
+      "id": "p-sala-cozinha",
+      "de": [6, 0],
+      "ate": [6, 5],
+      "aberturas": [{ "tipo": "vao", "offset": 1.6, "largura": 1.8, "altura": 2.3 }]
+    },
+    {
+      "id": "p-meio",
+      "de": [0, 5],
+      "ate": [10, 5],
+      "aberturas": [{ "tipo": "porta", "offset": 4.6, "largura": 0.9, "altura": 2.1 }]
+    },
+    {
+      "id": "p-quarto-banheiro",
+      "de": [6, 5],
+      "ate": [6, 9],
+      "aberturas": [{ "tipo": "porta", "offset": 2.6, "largura": 0.8, "altura": 2.1 }]
+    }
+  ],
+  "pisos": {
+    "madeiraClara": { "nome": "Madeira clara", "padrao": "tabuas", "cor": "#c99f6c", "tamanho": 2 },
+    "madeiraEscura": { "nome": "Madeira escura", "padrao": "tabuas", "cor": "#8b5d3c", "tamanho": 2 },
+    "ceramica": { "nome": "Cerâmica bege", "padrao": "azulejo", "cor": "#e6d8c2", "tamanho": 0.6 },
+    "azulejo": { "nome": "Azulejo branco", "padrao": "azulejo", "cor": "#e4ecef", "tamanho": 0.3 },
+    "carpete": { "nome": "Carpete cinza", "padrao": "carpete", "cor": "#9ba6b0", "tamanho": 1 },
+    "cimento": { "nome": "Cimento queimado", "padrao": "liso", "cor": "#b8b4ad" }
+  }
+}
