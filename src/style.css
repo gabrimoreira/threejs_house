@@ -60,20 +60,64 @@ button {
   pointer-events: auto;
 }
 
-.hud {
+/* Coluna da esquerda (desktop): HUD em cima e catálogo ocupando o resto da altura. */
+.sidebar {
   position: absolute;
   top: max(12px, env(safe-area-inset-top));
+  bottom: 12px;
   left: 12px;
   width: var(--side);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* A coluna em si não pode bloquear cliques no canvas (ex.: abaixo do catálogo recolhido). */
+#ui > .sidebar {
+  pointer-events: none;
+}
+
+.sidebar > * {
+  pointer-events: auto;
+}
+
+.hud {
+  flex-shrink: 0;
   padding: 10px 14px;
   background: var(--panel);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
+.hud {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.hud-text {
+  flex: 1;
+  min-width: 0;
+}
+
 .hud h1 {
   margin: 0;
   font-size: 17px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 2px;
+}
+
+.toolbar .icon-button {
+  font-size: 18px;
+}
+
+.icon-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: transparent;
 }
 
 .hud .hint {
@@ -103,11 +147,8 @@ button {
 /* ---------- Catálogo ---------- */
 
 .catalog {
-  position: absolute;
-  top: calc(max(12px, env(safe-area-inset-top)) + 84px);
-  bottom: 12px;
-  left: 12px;
-  width: var(--side);
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   background: var(--panel);
@@ -117,7 +158,7 @@ button {
 }
 
 .catalog.collapsed {
-  bottom: auto;
+  flex: none;
 }
 
 .catalog.collapsed .catalog-tabs,
@@ -301,10 +342,141 @@ button {
   cursor: default;
 }
 
+/* ---------- Inspetor do item selecionado ---------- */
+
+.inspector {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  right: 12px;
+  width: 260px;
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  padding: 10px 12px 12px;
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.inspector[hidden],
+.toast[hidden] {
+  display: none;
+}
+
+.inspector-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.inspector-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.inspector-title span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.inspector-section h4 {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.inspector-section output {
+  font-weight: 400;
+}
+
+.variants.compact {
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  gap: 4px;
+}
+
+.variants.compact .variant {
+  padding: 3px;
+}
+
+.variants.compact .variant img {
+  width: 48px;
+  height: 48px;
+}
+
+.variant.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.rotation-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rotation-row input {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+}
+
+.rotation-row button,
+.inspector-actions button {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-solid);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.inspector-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.inspector-actions button {
+  flex: 1;
+}
+
+.inspector-actions button.danger {
+  border-color: #f0c4c1;
+  color: var(--danger);
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: absolute;
+  left: 50%;
+  top: max(16px, env(safe-area-inset-top));
+  transform: translateX(-50%);
+  max-width: min(520px, calc(100% - 32px));
+  padding: 8px 14px;
+  background: rgba(35, 48, 58, 0.92);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none;
+}
+
 /* ---------- Celular: catálogo vira uma gaveta embaixo ---------- */
 
 @media (max-width: 700px) {
+  /* A coluna deixa de existir: HUD e catálogo se posicionam sozinhos. */
+  .sidebar {
+    display: contents;
+  }
+
   .hud {
+    position: absolute;
+    top: max(12px, env(safe-area-inset-top));
     left: 12px;
     right: 12px;
     width: auto;
@@ -316,7 +488,7 @@ button {
   }
 
   .catalog {
-    top: auto;
+    position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
@@ -340,6 +512,38 @@ button {
 
   .placement-actions {
     width: 100%;
+  }
+
+  .inspector {
+    top: auto;
+    left: 12px;
+    right: 12px;
+    bottom: calc(56px + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: 42vh;
+    padding: 8px 10px 10px;
+  }
+
+  /* Variantes numa fileira só, com rolagem horizontal, para o inspetor ficar baixo. */
+  .variants.compact {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .variants.compact .variant {
+    flex: 0 0 auto;
+  }
+
+  .inspector-section h4 {
+    margin: 8px 0 4px;
+  }
+
+  .inspector-actions {
+    margin-top: 8px;
+  }
+
+  .toast {
+    top: calc(max(12px, env(safe-area-inset-top)) + 56px);
   }
 
   .placement-actions button {

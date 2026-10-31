@@ -8,8 +8,12 @@ import { ThumbnailService } from './catalog/thumbnails';
 import { World } from './state/world';
 import { WorldView } from './state/worldView';
 import { Editor } from './editor/editor';
-import { createCatalogPanel } from './ui/catalogPanel';
+import { History } from './editor/commands/History';
+import { createCatalogPanel, isNarrowScreen } from './ui/catalogPanel';
 import { createPlacementBar } from './ui/placementBar';
+import { createInspector } from './ui/inspector';
+import { createToolbar } from './ui/toolbar';
+import { Toast } from './ui/toast';
 
 async function main() {
   // O JSON importado tem tipos "largos" (number[] em vez de [number, number]); declaramos o formato.
@@ -30,23 +34,42 @@ async function main() {
   const view = new WorldView(world, ctx);
   ctx.scene.add(view.group);
 
-  const editor = new Editor(ctx, world, house);
+  const history = new History();
+  const editor = new Editor(ctx, world, view, history, house, [...built.walls.values()]);
   const thumbnails = new ThumbnailService(ctx.renderer, ctx.scene.environment);
-  const catalogPanel = createCatalogPanel({
-    root: ui,
+
+  const catalog = createCatalogPanel({
+    root: document.getElementById('sidebar')!,
     thumbnails,
     onPick: (item, variant) => void editor.startPlacement(item, variant),
   });
   createPlacementBar(ui, editor);
+  const inspector = createInspector({ root: ui, editor, world, thumbnails, rooms: house.comodos });
+  createToolbar(document.getElementById('toolbar')!, editor, history);
 
-  // Centraliza a imagem na área que o catálogo não cobre: à direita dele no
-  // desktop, acima dele no celular (onde vira uma gaveta embaixo).
+  const toast = new Toast(ui);
+  editor.on('message', (text) => toast.show(text));
+  editor.on('hint', (text) => toast.hint(text));
+  // No celular o inspetor ocupa a parte de baixo: recolhe o catálogo ao selecionar.
+  editor.on('selection', (uid) => {
+    if (uid && isNarrowScreen()) catalog.setCollapsed(true);
+  });
+
+  // Centraliza a imagem na área que os painéis não cobrem: à direita do catálogo no
+  // desktop; no celular, acima do que estiver embaixo (gaveta do catálogo ou inspetor).
   const updateInsets = () => {
-    const rect = catalogPanel.getBoundingClientRect();
-    const bottomSheet = rect.left < 4 && rect.bottom >= window.innerHeight - 4;
-    ctx.setViewInsets(bottomSheet ? 0 : rect.right, bottomSheet ? window.innerHeight - rect.top : 0);
+    const rect = catalog.element.getBoundingClientRect();
+    if (!isNarrowScreen()) {
+      ctx.setViewInsets(rect.right, 0);
+      return;
+    }
+    let top = rect.top;
+    if (!inspector.hidden) top = Math.min(top, inspector.getBoundingClientRect().top);
+    ctx.setViewInsets(0, window.innerHeight - top);
   };
-  new ResizeObserver(updateInsets).observe(catalogPanel);
+  const insetsObserver = new ResizeObserver(updateInsets);
+  insetsObserver.observe(catalog.element);
+  insetsObserver.observe(inspector);
   window.addEventListener('resize', updateInsets);
   updateInsets();
   ctx.frameHouse();
@@ -54,7 +77,7 @@ async function main() {
 
   // Em desenvolvimento, expõe o contexto no console para inspecionar a cena.
   if (import.meta.env.DEV) {
-    Object.assign(window, { casa: { ctx, house, built, world, view, editor } });
+    Object.assign(window, { casa: { ctx, house, built, world, view, editor, history } });
   }
 }
 

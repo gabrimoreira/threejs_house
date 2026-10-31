@@ -3,12 +3,13 @@ import type { SceneContext } from '../scene/sceneContext';
 import { getItem, getVariant } from '../catalog/catalog';
 import { createInstance, destroyInstance } from '../catalog/variants';
 import type { ItemState, World } from './world';
+import { Emitter } from '../utils/emitter';
 
 /**
  * Reflete o World na cena: cria, move e remove os Object3D dos itens.
  * Cada objeto guarda o uid em userData, para o raycasting achar o item clicado.
  */
-export class WorldView {
+export class WorldView extends Emitter<{ spawned: { uid: string; object: THREE.Object3D } }> {
   readonly group = new THREE.Group();
   private readonly objects = new Map<string, THREE.Object3D>();
   // Carregamento é assíncrono: se o item mudar/sair antes de terminar, o token muda
@@ -18,6 +19,7 @@ export class WorldView {
   private readonly ctx: SceneContext;
 
   constructor(world: World, ctx: SceneContext) {
+    super();
     this.ctx = ctx;
     this.group.name = 'itens';
     world.on('added', (item) => void this.spawn(item));
@@ -64,6 +66,7 @@ export class WorldView {
     this.group.add(obj);
     this.objects.set(item.uid, obj);
     this.ctx.invalidateShadows();
+    this.emit('spawned', { uid: item.uid, object: obj });
   }
 
   private despawn(uid: string): void {
@@ -73,6 +76,12 @@ export class WorldView {
     destroyInstance(obj);
     this.objects.delete(uid);
     this.ctx.invalidateShadows();
+  }
+
+  /** Põe o objeto de volta na posição/rotação do estado (ex.: ao cancelar um arrasto). */
+  resetTransform(uid: string, item: ItemState): void {
+    const obj = this.objects.get(uid);
+    if (obj) this.applyTransform(obj, item);
   }
 
   private applyTransform(obj: THREE.Object3D, item: ItemState): void {

@@ -10,10 +10,15 @@
     <div id="app">
       <div id="viewport"></div>
       <div id="ui">
-        <header class="hud">
-          <h1>Casa Sandbox</h1>
-          <p class="hint">Arraste para girar · roda/pinça para zoom · botão direito ou dois dedos para mover</p>
-        </header>
+        <div id="sidebar" class="sidebar">
+          <header class="hud">
+            <div class="hud-text">
+              <h1>Casa Sandbox</h1>
+              <p class="hint">Clique num móvel para editar. Arraste para girar a câmera · roda/pinça: zoom · botão direito/dois dedos: mover</p>
+            </div>
+            <div class="toolbar" id="toolbar"></div>
+          </header>
+        </div>
         <div id="loading" class="loading">Carregando…</div>
       </div>
     </div>

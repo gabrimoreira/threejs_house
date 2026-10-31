@@ -9,6 +9,9 @@ interface CatalogPanelOptions {
   onPick(item: CatalogItem, variant: CatalogVariant): void;
 }
 
+/** Tela estreita (celular em pé): o catálogo vira uma gaveta embaixo. */
+export const isNarrowScreen = () => window.matchMedia('(max-width: 700px)').matches;
+
 /** Cria um elemento com classe e texto, para o código de DOM ficar curto. */
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag);
@@ -21,7 +24,12 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, t
  * Painel do catálogo: abas por categoria, e para cada item uma fileira com as
  * miniaturas das variantes. Clicar numa miniatura inicia o posicionamento.
  */
-export function createCatalogPanel({ root, thumbnails, onPick }: CatalogPanelOptions): HTMLElement {
+export interface CatalogPanel {
+  element: HTMLElement;
+  setCollapsed(collapsed: boolean): void;
+}
+
+export function createCatalogPanel({ root, thumbnails, onPick }: CatalogPanelOptions): CatalogPanel {
   const panel = el('aside', 'catalog');
   const header = el('div', 'catalog-header');
   const title = el('strong', undefined, 'Catálogo');
@@ -71,7 +79,7 @@ export function createCatalogPanel({ root, thumbnails, onPick }: CatalogPanelOpt
       button.addEventListener('click', () => {
         onPick(item, variant);
         // No celular, recolhe o painel para liberar a tela durante o posicionamento.
-        if (window.matchMedia('(max-width: 700px)').matches) setCollapsed(true);
+        if (isNarrowScreen()) setCollapsed(true);
       });
       variants.append(button);
       thumbnails
@@ -96,5 +104,5 @@ export function createCatalogPanel({ root, thumbnails, onPick }: CatalogPanelOpt
 
   const saved = loadPref('catalogTab', catalog.categorias[0].id);
   showCategory(catalog.categorias.some((c) => c.id === saved) ? saved : catalog.categorias[0].id);
-  return panel;
+  return { element: panel, setCollapsed };
 }
