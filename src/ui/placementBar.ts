@@ -36,7 +36,7 @@ export function createPlacementBar(root: HTMLElement, editor: Editor): void {
     if (!status.hasPosition) {
       hint.textContent = isCoarsePointer ? 'Toque no piso para posicionar' : 'Clique no piso · R gira · Shift+clique coloca vários · Esc cancela';
     } else if (!status.valid) {
-      hint.textContent = 'Fora da casa: escolha outro lugar';
+      hint.textContent = `${status.reason ?? 'Posição inválida'}: escolha outro lugar`;
     } else {
       hint.textContent = isCoarsePointer ? 'Toque em "Colocar" para confirmar' : 'Clique para colocar · R gira · Esc cancela';
     }

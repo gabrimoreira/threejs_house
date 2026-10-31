@@ -1,12 +1,14 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import type { HouseData, Opening, Room, Wall } from './types';
+import type { HouseData, Opening, Room, Wall, WallCollider } from './types';
 import { HouseMaterials, WALL_COLORS } from './materials';
 import { findRoomAt } from './roomLookup';
 import { instantiate, loadTemplate, templateSize } from '../catalog/modelCache';
 import { disposeGeometries } from '../utils/dispose';
 
 const DEFAULT_DOOR_MODEL = 'models/casa/doorwayOpen.glb';
+/** Folga (m) na frente de cada porta onde não se pode colocar móveis. */
+const DOOR_CLEARANCE = 0.5;
 
 /**
  * Trecho de vértices de uma parede pintado com a cor de um cômodo
@@ -25,6 +27,8 @@ export interface BuiltHouse {
   floors: Map<string, THREE.Mesh>;
   /** Malha de cada parede, por id. */
   walls: Map<string, THREE.Mesh>;
+  /** Caixas de colisão das paredes e das portas, em coordenadas de mundo. */
+  colliders: WallCollider[];
   dispose(): void;
 }
 
@@ -47,9 +51,10 @@ export async function buildHouse(house: HouseData, maxAnisotropy: number): Promi
   }
 
   const walls = new Map<string, THREE.Mesh>();
+  const colliders: WallCollider[] = [];
   const doorJobs: Promise<void>[] = [];
   for (const wall of house.paredes) {
-    const wallGroup = buildWall(wall, house, materials);
+    const wallGroup = buildWall(wall, house, materials, colliders);
     walls.set(wall.id, wallGroup.getObjectByName('alvenaria') as THREE.Mesh);
     group.add(wallGroup);
     for (const op of wall.aberturas ?? []) {
@@ -63,6 +68,7 @@ export async function buildHouse(house: HouseData, maxAnisotropy: number): Promi
     materials,
     floors,
     walls,
+    colliders,
     dispose() {
       // As portas usam geometria do cache de modelos: não podem ser descartadas aqui.
       disposeGeometries(group, (obj) => obj.userData.sharedGeometry === true);
@@ -127,7 +133,7 @@ function paintBox(geometry: THREE.BufferGeometry, faceColors: THREE.Color[]): vo
  * daquele lado. No fim, todas as caixas (e os caixilhos das janelas) são fundidas numa
  * única geometria com cores por vértice: uma parede = um draw call.
  */
-function buildWall(wall: Wall, house: HouseData, materials: HouseMaterials): THREE.Group {
+function buildWall(wall: Wall, house: HouseData, materials: HouseMaterials, colliders: WallCollider[]): THREE.Group {
   const t = house.espessuraParede;
   const H = house.alturaParede;
   const [x0, z0] = wall.de;
@@ -184,6 +190,34 @@ function buildWall(wall: Wall, house: HouseData, materials: HouseMaterials): THR
   const paintRanges: PaintRange[] = [];
   let vertexOffset = 0;
 
+  // Uma parede ao longo de X bloqueia movimento em Z, e vice-versa. Paredes
+  // diagonais não empurram móveis, só bloqueiam (a planta atual não tem nenhuma).
+  const blocks = Math.abs(dirZ) < 1e-6 ? 'z' : Math.abs(dirX) < 1e-6 ? 'x' : null;
+
+  // Converte uma caixa no espaço da parede (s ao longo dela, y, e a na espessura)
+  // para uma AABB de mundo, transformando os 4 cantos da base.
+  const addCollider = (s0: number, s1: number, y0: number, y1: number, a: number, kind: WallCollider['kind']) => {
+    const xs: number[] = [];
+    const zs: number[] = [];
+    for (const s of [s0, s1]) {
+      for (const across of [-a, a]) {
+        xs.push(x0 + dirX * s + nX * across);
+        zs.push(z0 + dirZ * s + nZ * across);
+      }
+    }
+    colliders.push({
+      minX: Math.min(...xs),
+      maxX: Math.max(...xs),
+      minY: y0,
+      maxY: y1,
+      minZ: Math.min(...zs),
+      maxZ: Math.max(...zs),
+      kind,
+      blocks: kind === 'parede' ? blocks : null,
+      wallId: wall.id,
+    });
+  };
+
   const addPiece = (a: number, b: number, y0: number, y1: number) => {
     const len = b - a;
     const h = y1 - y0;
@@ -199,6 +233,8 @@ function buildWall(wall: Wall, house: HouseData, materials: HouseMaterials): THR
     const roomB = findRoomAt(house.comodos, wx - nX * probe, wz - nZ * probe);
     const colorA = new THREE.Color(roomA?.corParede ?? house.corExterna);
     const colorB = new THREE.Color(roomB?.corParede ?? house.corExterna);
+
+    addCollider(a, b, y0, y1, t / 2, 'parede');
 
     const geometry = new THREE.BoxGeometry(len, h, t);
     paintBox(geometry, [trim, trim, top, trim, colorA, colorB]);
@@ -225,6 +261,13 @@ function buildWall(wall: Wall, house: HouseData, materials: HouseMaterials): THR
       addPiece(a, b, 0, bottom); // peitoril (só janelas)
       addPiece(a, b, topY, H); // verga acima do vão
     }
+  }
+
+  // Portas: o vão e uma folga dos dois lados ficam reservados para a passagem.
+  for (const op of openings) {
+    if (op.tipo !== 'porta') continue;
+    const reach = t / 2 + DOOR_CLEARANCE;
+    addCollider(op.offset, op.offset + op.largura, 0, op.altura, reach, 'porta');
   }
 
   // Janelas: o caixilho entra na mesma geometria da parede; os vidros formam outra malha.

@@ -35,7 +35,10 @@ async function main() {
   ctx.scene.add(view.group);
 
   const history = new History();
-  const editor = new Editor(ctx, world, view, history, house, [...built.walls.values()]);
+  const editor = new Editor(ctx, world, view, history, house, {
+    occluders: [...built.walls.values()],
+    colliders: built.colliders,
+  });
   const thumbnails = new ThumbnailService(ctx.renderer, ctx.scene.environment);
 
   const catalog = createCatalogPanel({

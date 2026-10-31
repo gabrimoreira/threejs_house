@@ -1,3 +1,5 @@
+import type { Box } from '../utils/aabb';
+
 /** Ponto da planta [x, z] em metros. */
 export type Vec2 = [number, number];
 
@@ -50,4 +52,16 @@ export interface HouseData {
   comodos: Room[];
   paredes: Wall[];
   pisos: Record<string, FloorStyle>;
+}
+
+/**
+ * Caixa de colisão gerada a partir da planta.
+ * - parede: um trecho de alvenaria; `blocks` diz em que eixo ela empurra os móveis
+ *   (uma parede ao longo de X bloqueia o movimento em Z);
+ * - porta: o vão de uma porta mais uma folga na frente, para não bloquear a passagem.
+ */
+export interface WallCollider extends Box {
+  kind: 'parede' | 'porta';
+  blocks: 'x' | 'z' | null;
+  wallId: string;
 }

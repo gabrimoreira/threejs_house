@@ -1,6 +1,3 @@
-import type { Room } from '../house/types';
-import { findRoomAt } from '../house/roomLookup';
-
 /** Passo do grid em metros. */
 export const GRID_STEP = 0.25;
 
@@ -27,16 +24,4 @@ export function snapToGrid(x: number, z: number, w: number, d: number, degrees: 
   const sz = Math.round((z - ed / 2) / GRID_STEP) * GRID_STEP + ed / 2;
   // Arredonda ao milímetro: evita lixo de ponto flutuante (5.4100000260000005) no save.
   return [roundMm(sx), roundMm(sz)];
-}
-
-/** Os 4 cantos do footprint (já girado) caem dentro de algum cômodo? */
-export function footprintInsideHouse(rooms: Room[], x: number, z: number, w: number, d: number, degrees: number): boolean {
-  const [ew, ed] = rotatedExtents(w, d, degrees);
-  const eps = 1e-6;
-  return [
-    [x - ew / 2 + eps, z - ed / 2 + eps],
-    [x + ew / 2 - eps, z - ed / 2 + eps],
-    [x - ew / 2 + eps, z + ed / 2 - eps],
-    [x + ew / 2 - eps, z + ed / 2 - eps],
-  ].every(([cx, cz]) => findRoomAt(rooms, cx, cz) !== undefined);
 }

@@ -140,6 +140,7 @@ export async function createInstance(item: CatalogItem, variant: CatalogVariant)
   instance.userData.variantKey = info.key;
   instance.userData.footprint = info.footprint;
   instance.userData.size = info.size.clone();
+  instance.userData.surfaceHeight = info.surfaceHeight;
   return instance;
 }
 

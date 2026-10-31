@@ -10,6 +10,10 @@ export interface ItemState {
   posicao: Vec3; // centro da base, em metros
   rotacao: number; // graus em torno de Y
   comodo: string | null;
+  /** Itens de bancada: uid do móvel em cima do qual o item está (null = no piso). */
+  apoio?: string | null;
+  /** Itens de parede: id da face de parede onde está pendurado. */
+  parede?: string | null;
 }
 
 type WorldEvents = {
