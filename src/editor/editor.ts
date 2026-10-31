@@ -733,6 +733,8 @@ export class Editor extends Emitter<EditorEvents> {
   private onKeyDown = (event: KeyboardEvent) => {
     const target = event.target as HTMLElement | null;
     if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+    // Com um diálogo aberto (ex.: "Minhas casas"), os atalhos do editor ficam desligados.
+    if (document.querySelector('dialog[open]')) return;
     const key = event.key.toLowerCase();
     const mod = event.ctrlKey || event.metaKey;
 

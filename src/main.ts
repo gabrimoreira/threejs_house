@@ -6,6 +6,8 @@ import { buildHouse } from './house/buildHouse';
 import { createSceneContext } from './scene/sceneContext';
 import { ThumbnailService } from './catalog/thumbnails';
 import { World } from './state/world';
+import { HouseState } from './state/houseState';
+import { SaveManager, type SaveStatus } from './state/saveManager';
 import { WorldView } from './state/worldView';
 import { Editor } from './editor/editor';
 import { History } from './editor/commands/History';
@@ -14,6 +16,7 @@ import { createPlacementBar } from './ui/placementBar';
 import { createInspector } from './ui/inspector';
 import { createToolbar } from './ui/toolbar';
 import { Toast } from './ui/toast';
+import { createSavesDialog } from './ui/savesDialog';
 
 async function main() {
   // O JSON importado tem tipos "largos" (number[] em vez de [number, number]); declaramos o formato.
@@ -48,9 +51,36 @@ async function main() {
   });
   createPlacementBar(ui, editor);
   const inspector = createInspector({ root: ui, editor, world, thumbnails, rooms: house.comodos });
-  createToolbar(document.getElementById('toolbar')!, editor, history);
-
   const toast = new Toast(ui);
+
+  // Persistência: autosave no IndexedDB, saves nomeados, exportar/importar.
+  const houseState = new HouseState();
+  const saves = new SaveManager(world, houseState, history, house);
+  const savesDialog = createSavesDialog(ui, saves);
+  createToolbar(document.getElementById('toolbar')!, editor, history, () => savesDialog.open());
+
+  const statusEl = document.getElementById('save-status')!;
+  const statusText: Record<SaveStatus, string> = {
+    salvo: 'salvo',
+    pendente: 'alterações não salvas…',
+    salvando: 'salvando…',
+    erro: 'erro ao salvar',
+  };
+  const showStatus = (status: SaveStatus) => {
+    statusEl.textContent = `${saves.currentSave.nome} · ${statusText[status]}`;
+    statusEl.classList.toggle('error', status === 'erro');
+  };
+  saves.on('status', showStatus);
+  saves.on('current', () => showStatus('salvo'));
+  saves.on('message', (text) => toast.show(text, 4000));
+  window.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault(); // Ctrl+S no navegador = salvar a página
+      void saves.saveNow().then((ok) => toast.show(ok ? 'Casa salva.' : 'Não foi possível salvar.'));
+    }
+  });
+  await saves.init();
+
   editor.on('message', (text) => toast.show(text));
   editor.on('hint', (text) => toast.hint(text));
   // No celular o inspetor ocupa a parte de baixo: recolhe o catálogo ao selecionar.
@@ -80,7 +110,7 @@ async function main() {
 
   // Em desenvolvimento, expõe o contexto no console para inspecionar a cena.
   if (import.meta.env.DEV) {
-    Object.assign(window, { casa: { ctx, house, built, world, view, editor, history } });
+    Object.assign(window, { casa: { ctx, house, built, world, view, editor, history, saves, houseState } });
   }
 }
 

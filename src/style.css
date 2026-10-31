@@ -120,6 +120,19 @@ button {
   background: transparent;
 }
 
+.save-status {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.save-status.error {
+  color: var(--danger);
+}
+
 .hud .hint {
   margin: 4px 0 0;
   font-size: 12px;
@@ -449,6 +462,154 @@ button {
   color: var(--danger);
 }
 
+/* ---------- Minhas casas ---------- */
+
+.saves-dialog {
+  width: min(560px, calc(100% - 24px));
+  max-height: calc(100% - 48px);
+  padding: 14px 16px 16px;
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+.saves-dialog::backdrop {
+  background: rgba(20, 35, 45, 0.35);
+}
+
+.saves-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.saves-header h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.saves-actions,
+.saves-name-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.saves-name-form[hidden] {
+  display: none;
+}
+
+.saves-name-form label {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 220px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.saves-name-form input {
+  margin-top: 2px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  color: var(--text);
+}
+
+.saves-actions button,
+.saves-name-form button,
+.save-buttons button {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-solid);
+  font-size: 13px;
+}
+
+.saves-name-form {
+  align-items: flex-end;
+}
+
+.saves-name-form button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.saves-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.saves-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.saves-list li.current strong {
+  color: var(--accent);
+}
+
+.saves-list li.empty {
+  color: var(--muted);
+}
+
+.save-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.save-info strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.save-info small {
+  color: var(--muted);
+}
+
+.save-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.save-info .tag {
+  flex-shrink: 0;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.save-buttons {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.save-buttons .danger {
+  color: var(--danger);
+}
+
+.save-buttons .danger-solid {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: #fff;
+}
+
 /* ---------- Toast ---------- */
 
 .toast {
@@ -543,7 +704,12 @@ button {
   }
 
   .toast {
-    top: calc(max(12px, env(safe-area-inset-top)) + 56px);
+    top: calc(max(12px, env(safe-area-inset-top)) + 72px);
+  }
+
+  .saves-list li {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .placement-actions button {

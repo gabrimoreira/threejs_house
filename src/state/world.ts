@@ -56,6 +56,13 @@ export class World extends Emitter<WorldEvents> {
     return item;
   }
 
+  /** Troca todos os itens (ao abrir um save). Os móveis de baixo entram antes do que fica em cima. */
+  replaceAll(items: ItemState[]): void {
+    for (const uid of [...this.items.keys()]) this.remove(uid);
+    const sorted = [...items].sort((a, b) => Number(Boolean(a.apoio)) - Number(Boolean(b.apoio)));
+    for (const item of sorted) this.add(item);
+  }
+
   update(uid: string, patch: Partial<Omit<ItemState, 'uid'>>): ItemState | undefined {
     const before = this.items.get(uid);
     if (!before) return undefined;
